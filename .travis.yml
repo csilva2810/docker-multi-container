@@ -1,0 +1,20 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t csilva2810/client-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run csilva2810/client-test npm test -- --coverage
+
+after_success:
+  - docker build -t csilva2810/client ./client
+  - docker build -t csilva2810/nginx ./nginx
+  - docker build -t csilva2810/server ./server
+  - docker build -t csilva2810/worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push csilva2810/client
+  - docker push csilva2810/nginx
+  - docker push csilva2810/server
+  - docker push csilva2810/worker
